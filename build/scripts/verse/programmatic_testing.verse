@@ -88,7 +88,7 @@ programmatic_testing := class(creative_device):
         
         PassedTests := 0
         for (TestName -> Result : TestResults):
-            Status := if (Result) "✅ PASS" else "❌ FAIL"
+            Status := if (Result) then "PASS" else "FAIL"
             Print("{TestName}: {Status}")
             if (Result):
                 set PassedTests = PassedTests + 1
@@ -98,9 +98,9 @@ programmatic_testing := class(creative_device):
         Print("成功率: {SuccessRate}%")
         
         if (PassedTests = TotalTests):
-            Print("🎉 所有测试通过！游戏可以发布")
+            Print("All tests passed! Game ready for release")
         else:
-            Print("⚠️  有测试失败，需要修复")
+            Print("Some tests failed, needs fixing")
         
         Print("====================")
         Print("测试完成时间: {GetSimulationElapsedTime()}s")

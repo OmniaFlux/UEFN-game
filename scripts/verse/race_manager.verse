@@ -44,7 +44,7 @@ race_manager := class(creative_device):
 
     OnCheckpointReached(Agent : agent):void =
         if (Player := player[Agent], RaceActive):
-            CurrentCheckpoints := PlayerCheckpoints[Player] ? 0
+            CurrentCheckpoints := if(CheckpointValue := PlayerCheckpoints[Player]) CheckpointValue else 0
             set PlayerCheckpoints[Player] = CurrentCheckpoints + 1
             Print("Player {Player.GetDisplayName()} reached checkpoint {CurrentCheckpoints + 1}")
 
