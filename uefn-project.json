@@ -1,0 +1,26 @@
+{
+  "name": "UEFN_Race",
+  "version": "1.0.0",
+  "description": "纯代码开发的UEFN赛车游戏",
+  "verse_version": "1.0",
+  "project_type": "creative_island",
+  "dependencies": {
+    "fortnite_devices": "latest",
+    "verse_simulation": "latest",
+    "unreal_engine_diagnostics": "latest"
+  },
+  "build": {
+    "output_dir": "build/",
+    "verse_files": [
+      "scripts/verse/race_manager.verse",
+      "scripts/verse/vehicle_spawner.verse", 
+      "ui/hud/race_hud.verse",
+      "scripts/verse/auto_device_setup.verse"
+    ]
+  },
+  "automation": {
+    "auto_compile": true,
+    "auto_deploy": true,
+    "test_mode": "single_player"
+  }
+}
