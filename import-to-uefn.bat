@@ -9,7 +9,7 @@ REM 配置路径
 set "UEFN_PROJECTS_DIR=%USERPROFILE%\Documents\UnrealProjects"
 set "PROJECT_NAME=UEFN_Race"
 set "PROJECT_PATH=%UEFN_PROJECTS_DIR%\%PROJECT_NAME%"
-set "UEFN_EXECUTABLE=C:\Program Files\Epic Games\UnrealEditorForFortnite\Engine\Binaries\Win64\UnrealEditorForFortnite.exe"
+set "UEFN_EXECUTABLE=E:\Epic Games\Fortnite\FortniteGame\Binaries\Win64\UnrealEditorFortnite-Win64-Shipping.exe"
 
 REM 1. 检查环境
 :check_environment

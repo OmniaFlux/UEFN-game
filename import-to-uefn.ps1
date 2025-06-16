@@ -6,7 +6,7 @@ Write-Host "Starting UEFN import process..." -ForegroundColor Green
 $UEFNProjectsDir = "$env:USERPROFILE\Documents\UnrealProjects"
 $ProjectName = "UEFN_Race"
 $ProjectPath = "$UEFNProjectsDir\$ProjectName"
-$UEFNExecutable = "C:\Program Files\Epic Games\UnrealEditorForFortnite\Engine\Binaries\Win64\UnrealEditorForFortnite.exe"
+$UEFNExecutable = "E:\Epic Games\Fortnite\FortniteGame\Binaries\Win64\UnrealEditorFortnite-Win64-Shipping.exe"
 
 # 1. Check Environment
 function Check-Environment {
