@@ -56,8 +56,8 @@ setup_uefn_project() {
     if [ ! -d "$PROJECT_PATH" ]; then
         echo "创建新项目: $PROJECT_NAME"
         mkdir -p "$PROJECT_PATH"
-        mkdir -p "$PROJECT_PATH/Content/Scripts"
-        mkdir -p "$PROJECT_PATH/Content/UI"
+        mkdir -p "$PROJECT_PATH/VerseFiles"
+        mkdir -p "$PROJECT_PATH/Plugins/$PROJECT_NAME/VerseFiles"
         
         # 创建基础项目文件
         cat > "$PROJECT_PATH/$PROJECT_NAME.uproject" << EOF
@@ -92,12 +92,12 @@ EOF
 import_verse_scripts() {
     echo "📝 导入Verse脚本..."
     
-    # 复制Verse文件到项目
-    cp -r build/scripts/* "$PROJECT_PATH/Content/Scripts/"
-    cp -r build/ui/* "$PROJECT_PATH/Content/UI/"
+    # 复制Verse文件到UEFN项目的正确位置
+    cp build/scripts/verse/*.verse "$PROJECT_PATH/VerseFiles/"
+    cp build/ui/hud/*.verse "$PROJECT_PATH/VerseFiles/"
     
     echo "导入的文件:"
-    find "$PROJECT_PATH/Content" -name "*.verse" -exec basename {} \;
+    find "$PROJECT_PATH/VerseFiles" -name "*.verse" -exec basename {} \;
     
     echo "✅ Verse脚本导入完成"
 }
