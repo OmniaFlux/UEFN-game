@@ -88,10 +88,11 @@ programmatic_testing := class(creative_device):
         
         PassedTests := 0
         for (TestName -> Result : TestResults):
-            Status := if (Result) then "PASS" else "FAIL"
-            Print("{TestName}: {Status}")
             if (Result):
+                Print("{TestName}: PASS")
                 set PassedTests = PassedTests + 1
+            else:
+                Print("{TestName}: FAIL")
         
         Print("")
         SuccessRate := (PassedTests * 100) / TotalTests

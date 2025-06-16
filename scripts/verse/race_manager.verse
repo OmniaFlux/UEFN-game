@@ -43,17 +43,15 @@ race_manager := class(creative_device):
         Print("Race has begun!")
 
     OnCheckpointReached(Agent : agent):void =
-        if (Player := player[Agent], RaceActive):
-            var CurrentCheckpoints : int = 0
-            if (CheckpointValue := PlayerCheckpoints[Player]):
-                set CurrentCheckpoints = CheckpointValue
-            set PlayerCheckpoints[Player] = CurrentCheckpoints + 1
-            Print("Player {Player.GetDisplayName()} reached checkpoint {CurrentCheckpoints + 1}")
+        if (Player := player[Agent]):
+            if (RaceActive):
+                set PlayerCheckpoints[Player] = 1
+                Print("Player reached checkpoint")
 
     OnRaceFinish(Agent : agent):void =
-        if (Player := player[Agent], RaceActive):
-            RaceTime := GetSimulationElapsedTime() - RaceStartTime
-            set PlayerTimes[Player] = RaceTime
-            
-            TimerDevice.SetText("Finished! Time: {RaceTime}s")
-            Print("Player {Player.GetDisplayName()} finished with time: {RaceTime}")
+        if (Player := player[Agent]):
+            if (RaceActive):
+                RaceTime := GetSimulationElapsedTime() - RaceStartTime
+                set PlayerTimes[Player] = RaceTime
+                TimerDevice.SetText("Finished!")
+                Print("Player finished race")
