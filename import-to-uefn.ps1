@@ -1,51 +1,51 @@
-# UEFN 自动导入脚本 (PowerShell版本) - 将build/目录导入到UEFN项目
+# UEFN Auto Import Script (PowerShell)
 
-Write-Host "🚀 开始自动导入到UEFN..." -ForegroundColor Green
+Write-Host "Starting UEFN import process..." -ForegroundColor Green
 
-# 配置路径
+# Configuration
 $UEFNProjectsDir = "$env:USERPROFILE\Documents\UnrealProjects"
 $ProjectName = "UEFN_Race"
 $ProjectPath = "$UEFNProjectsDir\$ProjectName"
 $UEFNExecutable = "C:\Program Files\Epic Games\UnrealEditorForFortnite\Engine\Binaries\Win64\UnrealEditorForFortnite.exe"
 
-# 1. 检查环境
+# 1. Check Environment
 function Check-Environment {
-    Write-Host "📋 检查导入环境..." -ForegroundColor Yellow
+    Write-Host "Checking import environment..." -ForegroundColor Yellow
     
     if (-not (Test-Path $UEFNExecutable)) {
-        Write-Host "❌ 未找到UEFN安装" -ForegroundColor Red
-        Write-Host "请安装 Unreal Editor for Fortnite" -ForegroundColor Red
-        Write-Host "预期路径: $UEFNExecutable" -ForegroundColor Red
+        Write-Host "UEFN installation not found" -ForegroundColor Red
+        Write-Host "Please install Unreal Editor for Fortnite" -ForegroundColor Red
+        Write-Host "Expected path: $UEFNExecutable" -ForegroundColor Red
         Write-Host ""
-        Write-Host "或者手动设置UEFNExecutable路径" -ForegroundColor Yellow
-        Read-Host "按任意键退出"
+        Write-Host "Or manually set UEFNExecutable path" -ForegroundColor Yellow
+        Read-Host "Press any key to exit"
         exit 1
     }
     
     if (-not (Test-Path "build")) {
-        Write-Host "❌ 未找到build目录" -ForegroundColor Red
-        Write-Host "请先运行: .\build.ps1" -ForegroundColor Red
-        Read-Host "按任意键退出"
+        Write-Host "Build directory not found" -ForegroundColor Red
+        Write-Host "Please run: .\build.ps1 first" -ForegroundColor Red
+        Read-Host "Press any key to exit"
         exit 1
     }
     
-    Write-Host "✅ 环境检查通过" -ForegroundColor Green
+    Write-Host "Environment check passed" -ForegroundColor Green
 }
 
-# 2. 创建或打开UEFN项目
+# 2. Setup UEFN Project
 function Setup-UEFNProject {
-    Write-Host "📁 设置UEFN项目..." -ForegroundColor Yellow
+    Write-Host "Setting up UEFN project..." -ForegroundColor Yellow
     
-    # 创建项目目录
+    # Create project directory
     New-Item -ItemType Directory -Force -Path $UEFNProjectsDir | Out-Null
     
     if (-not (Test-Path $ProjectPath)) {
-        Write-Host "创建新项目: $ProjectName" -ForegroundColor Cyan
+        Write-Host "Creating new project: $ProjectName" -ForegroundColor Cyan
         New-Item -ItemType Directory -Force -Path $ProjectPath | Out-Null
         New-Item -ItemType Directory -Force -Path "$ProjectPath\VerseFiles" | Out-Null
         New-Item -ItemType Directory -Force -Path "$ProjectPath\Plugins\$ProjectName\VerseFiles" | Out-Null
         
-        # 创建基础项目文件
+        # Create basic project file
         $projectContent = @"
 {
     "FileVersion": 3,
@@ -70,29 +70,37 @@ function Setup-UEFNProject {
         
         $projectContent | Out-File -FilePath "$ProjectPath\$ProjectName.uproject" -Encoding UTF8
     } else {
-        Write-Host "使用existing项目: $ProjectName" -ForegroundColor Cyan
+        Write-Host "Using existing project: $ProjectName" -ForegroundColor Cyan
     }
     
-    Write-Host "✅ UEFN项目准备完成" -ForegroundColor Green
+    Write-Host "UEFN project setup complete" -ForegroundColor Green
 }
 
-# 3. 导入Verse脚本
+# 3. Import Verse Scripts
 function Import-VerseScripts {
-    Write-Host "📝 导入Verse脚本..." -ForegroundColor Yellow
+    Write-Host "Importing Verse scripts..." -ForegroundColor Yellow
     
-    # 复制Verse文件到UEFN项目的正确位置
-    Copy-Item "build\scripts\verse\*.verse" "$ProjectPath\VerseFiles\" -Force
-    Copy-Item "build\ui\hud\*.verse" "$ProjectPath\VerseFiles\" -Force
+    # Copy Verse files to correct UEFN location
+    if (Test-Path "build\scripts\verse\*.verse") {
+        Copy-Item "build\scripts\verse\*.verse" "$ProjectPath\VerseFiles\" -Force
+    }
+    if (Test-Path "build\ui\hud\*.verse") {
+        Copy-Item "build\ui\hud\*.verse" "$ProjectPath\VerseFiles\" -Force
+    }
     
-    Write-Host "导入的文件:" -ForegroundColor Cyan
-    Get-ChildItem "$ProjectPath\VerseFiles\*.verse" | ForEach-Object { Write-Host "  $($_.Name)" -ForegroundColor Green }
+    Write-Host "Imported files:" -ForegroundColor Cyan
+    if (Test-Path "$ProjectPath\VerseFiles\*.verse") {
+        Get-ChildItem "$ProjectPath\VerseFiles\*.verse" | ForEach-Object { 
+            Write-Host "  $($_.Name)" -ForegroundColor Green 
+        }
+    }
     
-    Write-Host "✅ Verse脚本导入完成" -ForegroundColor Green
+    Write-Host "Verse scripts import complete" -ForegroundColor Green
 }
 
-# 4. 生成导入配置
+# 4. Generate Import Config
 function Generate-ImportConfig {
-    Write-Host "⚙️  生成导入配置..." -ForegroundColor Yellow
+    Write-Host "Generating import config..." -ForegroundColor Yellow
     
     $importConfig = @{
         project_name = $ProjectName
@@ -110,74 +118,80 @@ function Generate-ImportConfig {
     
     $importConfig | ConvertTo-Json -Depth 3 | Out-File -FilePath "$ProjectPath\import_config.json" -Encoding UTF8
     
-    Write-Host "✅ 导入配置生成完成" -ForegroundColor Green
+    Write-Host "Import config generated" -ForegroundColor Green
 }
 
-# 5. 生成导入说明
+# 5. Generate Instructions
 function Generate-Instructions {
-    Write-Host "📋 生成导入说明..." -ForegroundColor Yellow
+    Write-Host "Generating import instructions..." -ForegroundColor Yellow
     
     $instructions = @"
-# UEFN 项目导入完成
+# UEFN Project Import Complete
 
-## 项目信息
-- 项目名称: $ProjectName
-- 项目路径: $ProjectPath
-- 导入时间: $(Get-Date)
+## Project Information
+- Project Name: $ProjectName
+- Project Path: $ProjectPath
+- Import Time: $(Get-Date)
 
-## 下一步操作
+## Next Steps
 
-### 1. 启动UEFN
-双击运行: $ProjectPath\$ProjectName.uproject
+### 1. Launch UEFN
+Double-click to run: $ProjectPath\$ProjectName.uproject
 
-### 2. 编译Verse代码
-- 菜单: Build → Compile Verse
-- 确认编译成功 (绿色✅)
+### 2. Compile Verse Code
+- Menu: Build -> Compile Verse
+- Confirm compilation success (green checkmark)
 
-### 3. 激活自动设置
-- 找到 auto_device_setup 设备
-- 拖拽到地图中央
-- 点击Play按钮
+### 3. Activate Auto Setup
+- Find auto_device_setup device
+- Drag to map center
+- Click Play button
 
-### 4. 运行自动测试
-- 确保 programmatic_testing 已激活
-- 观察控制台输出测试结果
+### 4. Run Auto Tests
+- Ensure programmatic_testing is active
+- Observe console output for test results
 
-## 预期测试输出
+## Expected Test Output
 ```
-🧪 开始程序化自动测试...
-✅ 载具生成测试通过
-✅ 检查点系统测试通过  
-✅ 计时器功能测试通过
-✅ HUD显示测试通过
-✅ 比赛流程测试通过
-🎉 所有测试通过！游戏可以发布
+Starting programmatic auto testing...
+Vehicle spawning test passed
+Checkpoint system test passed  
+Timer functionality test passed
+HUD display test passed
+Race flow test passed
+All tests passed! Game ready for release
 ```
 
-导入完成！开始享受你的UEFN赛车游戏吧！🏁
+Import complete! Start enjoying your UEFN racing game!
 "@
     
     $instructions | Out-File -FilePath "$ProjectPath\IMPORT_INSTRUCTIONS.md" -Encoding UTF8
     
-    Write-Host "✅ 导入说明已生成: $ProjectPath\IMPORT_INSTRUCTIONS.md" -ForegroundColor Green
+    Write-Host "Import instructions generated: $ProjectPath\IMPORT_INSTRUCTIONS.md" -ForegroundColor Green
 }
 
-# 6. 询问是否启动UEFN
+# 6. Launch UEFN
 function Launch-UEFN {
-    Write-Host "🎮 是否启动UEFN?" -ForegroundColor Yellow
-    $choice = Read-Host "输入 Y 启动UEFN，或按任意键跳过"
+    Write-Host "Launch UEFN?" -ForegroundColor Yellow
+    $choice = Read-Host "Enter Y to launch UEFN, or any key to skip"
     
     if ($choice -eq "Y" -or $choice -eq "y") {
-        Write-Host "正在启动UEFN..." -ForegroundColor Cyan
-        Start-Process $UEFNExecutable -ArgumentList "`"$ProjectPath\$ProjectName.uproject`""
-        Write-Host "✅ UEFN已启动，项目已加载" -ForegroundColor Green
+        Write-Host "Launching UEFN..." -ForegroundColor Cyan
+        try {
+            Start-Process $UEFNExecutable -ArgumentList "`"$ProjectPath\$ProjectName.uproject`""
+            Write-Host "UEFN launched with project loaded" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "Failed to launch UEFN: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "Please manually open: $ProjectPath\$ProjectName.uproject" -ForegroundColor Yellow
+        }
     } else {
-        Write-Host "请手动启动UEFN并打开项目:" -ForegroundColor Yellow
-        Write-Host "项目路径: $ProjectPath\$ProjectName.uproject" -ForegroundColor Cyan
+        Write-Host "Please manually launch UEFN and open project:" -ForegroundColor Yellow
+        Write-Host "Project path: $ProjectPath\$ProjectName.uproject" -ForegroundColor Cyan
     }
 }
 
-# 主执行流程
+# Main execution flow
 function Main {
     Check-Environment
     Setup-UEFNProject
@@ -187,13 +201,13 @@ function Main {
     Launch-UEFN
     
     Write-Host ""
-    Write-Host "🎉 UEFN导入完成！" -ForegroundColor Green
-    Write-Host "📁 项目位置: $ProjectPath" -ForegroundColor Cyan
-    Write-Host "📋 查看说明: $ProjectPath\IMPORT_INSTRUCTIONS.md" -ForegroundColor Cyan
-    Write-Host "🚀 在UEFN中编译Verse代码并开始测试" -ForegroundColor Cyan
+    Write-Host "UEFN import complete!" -ForegroundColor Green
+    Write-Host "Project location: $ProjectPath" -ForegroundColor Cyan
+    Write-Host "View instructions: $ProjectPath\IMPORT_INSTRUCTIONS.md" -ForegroundColor Cyan
+    Write-Host "Compile Verse code in UEFN and start testing" -ForegroundColor Cyan
     Write-Host ""
-    Read-Host "按任意键退出"
+    Read-Host "Press any key to exit"
 }
 
-# 执行主函数
+# Execute main function
 Main
