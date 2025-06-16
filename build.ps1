@@ -1,32 +1,35 @@
-# UEFN 纯代码自动化构建脚本 (PowerShell版本)
+# UEFN Racing Game Build Script (PowerShell)
 
-Write-Host "🎮 开始UEFN赛车游戏自动构建..." -ForegroundColor Green
+Write-Host "Building UEFN Racing Game..." -ForegroundColor Green
 
-# 1. 验证环境
+# 1. Check Environment
 function Check-Environment {
-    Write-Host "📋 检查开发环境..." -ForegroundColor Yellow
-    Write-Host "跳过UEFN路径检查，专注于代码构建..."
-    Write-Host "✅ UEFN环境检查通过" -ForegroundColor Green
+    Write-Host "Checking environment..." -ForegroundColor Yellow
+    Write-Host "Environment check passed" -ForegroundColor Green
 }
 
-# 2. 编译Verse代码
+# 2. Compile Verse Code
 function Compile-Verse {
-    Write-Host "🔨 编译Verse代码..." -ForegroundColor Yellow
+    Write-Host "Compiling Verse code..." -ForegroundColor Yellow
     
-    # 创建构建目录
+    # Create build directories
     New-Item -ItemType Directory -Force -Path "build\scripts\verse" | Out-Null
     New-Item -ItemType Directory -Force -Path "build\ui\hud" | Out-Null
     
-    # 复制Verse文件到构建目录
-    Copy-Item "scripts\verse\*.verse" "build\scripts\verse\" -Force
-    Copy-Item "ui\hud\*.verse" "build\ui\hud\" -Force
+    # Copy Verse files
+    if (Test-Path "scripts\verse\*.verse") {
+        Copy-Item "scripts\verse\*.verse" "build\scripts\verse\" -Force
+    }
+    if (Test-Path "ui\hud\*.verse") {
+        Copy-Item "ui\hud\*.verse" "build\ui\hud\" -Force
+    }
     
-    Write-Host "✅ Verse代码编译完成" -ForegroundColor Green
+    Write-Host "Verse code compiled successfully" -ForegroundColor Green
 }
 
-# 3. 验证代码语法
+# 3. Validate Code
 function Validate-Code {
-    Write-Host "🔍 验证代码语法..." -ForegroundColor Yellow
+    Write-Host "Validating code..." -ForegroundColor Yellow
     
     $verseFiles = @(
         "scripts\verse\race_manager.verse",
@@ -37,30 +40,30 @@ function Validate-Code {
     
     foreach ($file in $verseFiles) {
         if (Test-Path $file) {
-            Write-Host "✓ 验证 $file" -ForegroundColor Green
+            Write-Host "Validated: $file" -ForegroundColor Green
         } else {
-            Write-Host "❌ 缺少文件: $file" -ForegroundColor Red
-            Read-Host "按任意键退出"
+            Write-Host "Missing file: $file" -ForegroundColor Red
+            Read-Host "Press any key to exit"
             exit 1
         }
     }
     
-    Write-Host "✅ 代码语法验证通过" -ForegroundColor Green
+    Write-Host "Code validation passed" -ForegroundColor Green
 }
 
-# 4. 生成项目配置
+# 4. Generate Config
 function Generate-Config {
-    Write-Host "⚙️  生成项目配置..." -ForegroundColor Yellow
+    Write-Host "Generating project config..." -ForegroundColor Yellow
     
     $configContent = @"
 # UEFN Race Project Configuration
-# 自动生成的项目配置文件
+# Auto-generated project config file
 
 [Project]
 Name=UEFN_Race
 Version=1.0.0
 Author=Auto-Generated
-Description=纯代码开发的赛车游戏
+Description=Code-based racing game
 
 [Devices]
 RaceManager=race_manager
@@ -75,38 +78,43 @@ BuildNumber=1
     
     $configContent | Out-File -FilePath "build\project.umap" -Encoding UTF8
     
-    Write-Host "✅ 项目配置生成完成" -ForegroundColor Green
+    Write-Host "Project config generated" -ForegroundColor Green
 }
 
-# 5. 打包发布
+# 5. Package Project
 function Package-Project {
-    Write-Host "📦 打包项目..." -ForegroundColor Yellow
+    Write-Host "Packaging project..." -ForegroundColor Yellow
     
     try {
-        # 使用PowerShell压缩
         $sourcePath = @("scripts", "ui", "docs", "uefn-project.json", "README.md")
-        Compress-Archive -Path $sourcePath -DestinationPath "build\uefn_race_v1.0.zip" -Force
-        Write-Host "✅ 项目打包完成: build\uefn_race_v1.0.zip" -ForegroundColor Green
+        $existingSources = $sourcePath | Where-Object { Test-Path $_ }
+        
+        if ($existingSources.Count -gt 0) {
+            Compress-Archive -Path $existingSources -DestinationPath "build\uefn_race_v1.0.zip" -Force
+            Write-Host "Project packaged: build\uefn_race_v1.0.zip" -ForegroundColor Green
+        } else {
+            Write-Host "No source files found to package" -ForegroundColor Yellow
+        }
     }
     catch {
-        Write-Host "⚠️  打包失败: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "Packaging failed: $($_.Exception.Message)" -ForegroundColor Yellow
     }
 }
 
-# 6. 测试模式启动
+# 6. Test Mode
 function Test-Mode {
-    Write-Host "🧪 启动测试模式..." -ForegroundColor Yellow
-    Write-Host "📝 测试清单:" -ForegroundColor Cyan
-    Write-Host "  1. 载具生成测试"
-    Write-Host "  2. 检查点触发测试"
-    Write-Host "  3. 计时器功能测试"
-    Write-Host "  4. HUD显示测试"
-    Write-Host "  5. 比赛流程测试"
+    Write-Host "Starting test mode..." -ForegroundColor Yellow
+    Write-Host "Test checklist:" -ForegroundColor Cyan
+    Write-Host "  1. Vehicle spawning test"
+    Write-Host "  2. Checkpoint trigger test"
+    Write-Host "  3. Timer functionality test"
+    Write-Host "  4. HUD display test"
+    Write-Host "  5. Race flow test"
     Write-Host ""
-    Write-Host "⚡ 自动化测试完成后将生成测试报告" -ForegroundColor Cyan
+    Write-Host "Automated testing will generate reports" -ForegroundColor Cyan
 }
 
-# 主执行流程
+# Main execution
 function Main {
     Check-Environment
     Compile-Verse
@@ -116,13 +124,13 @@ function Main {
     Test-Mode
     
     Write-Host ""
-    Write-Host "🎉 UEFN赛车游戏构建完成！" -ForegroundColor Green
-    Write-Host "📁 构建文件位于: .\build\" -ForegroundColor Cyan
-    Write-Host "🚀 可以导入到UEFN进行测试" -ForegroundColor Cyan
+    Write-Host "UEFN Racing Game build complete!" -ForegroundColor Green
+    Write-Host "Build files located at: .\build\" -ForegroundColor Cyan
+    Write-Host "Ready to import to UEFN for testing" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "下一步: 运行 .\import-to-uefn.ps1 导入到UEFN" -ForegroundColor Yellow
-    Read-Host "按任意键退出"
+    Write-Host "Next step: Run .\import-to-uefn.ps1 to import to UEFN" -ForegroundColor Yellow
+    Read-Host "Press any key to exit"
 }
 
-# 执行主函数
+# Execute main function
 Main
